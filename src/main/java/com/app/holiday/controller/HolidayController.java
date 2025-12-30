@@ -4,6 +4,8 @@ import com.app.holiday.dto.HolidayRequest;
 import com.app.holiday.dto.HolidayResponse;
 import com.app.holiday.service.HolidayService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +18,8 @@ public class HolidayController {
 
     private final HolidayService service;
 
+    private static final Logger log = LoggerFactory.getLogger(HolidayController.class);
+
     public HolidayController(HolidayService service) {
         this.service = service;
     }
@@ -23,6 +27,7 @@ public class HolidayController {
     @PostMapping
     public ResponseEntity<HolidayResponse> createHoliday(
             @Valid @RequestBody HolidayRequest request) {
+        log.info("Adding a new Holiday {}", request);
 
         return ResponseEntity.ok(service.createHoliday(request));
     }

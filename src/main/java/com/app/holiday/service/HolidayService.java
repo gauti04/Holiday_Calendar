@@ -5,6 +5,7 @@ import com.app.holiday.dto.HolidayResponse;
 import com.app.holiday.entity.Holiday;
 import com.app.holiday.mapper.HolidayMapper;
 import com.app.holiday.repository.HolidayRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -19,6 +20,7 @@ public class HolidayService {
         this.repository = repository;
     }
 
+    @Transactional
     public HolidayResponse createHoliday(HolidayRequest request) {
         Holiday holiday = HolidayMapper.toEntity(request);
         Holiday saved = repository.save(holiday);
@@ -46,6 +48,7 @@ public class HolidayService {
                 .toList();
     }
 
+    @Transactional
     public void deleteHoliday(Long id) {
         if (!repository.existsById(id)) {
             throw new IllegalArgumentException("Holiday not found with id: " + id);
