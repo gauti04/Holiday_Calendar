@@ -6,6 +6,8 @@ import com.app.holiday.entity.Holiday;
 import com.app.holiday.mapper.HolidayMapper;
 import com.app.holiday.repository.HolidayRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -34,6 +36,11 @@ public class HolidayService {
                 .toList();
     }
 
+    public Page<HolidayResponse> getAllHolidays(Pageable pageable) {
+        return repository.findAllByOrderByDateAsc(pageable)
+                .map(HolidayMapper::toResponse);
+    }
+
     public List<HolidayResponse> getHolidaysByDate(LocalDate date) {
         return repository.findByDate(date)
                 .stream()
@@ -41,11 +48,21 @@ public class HolidayService {
                 .toList();
     }
 
+    public Page<HolidayResponse> getHolidaysByDate(LocalDate date, Pageable pageable) {
+        return repository.findByDate(date, pageable)
+                .map(HolidayMapper::toResponse);
+    }
+
     public List<HolidayResponse> getHolidaysByYear(int year) {
         return repository.findByYear(year)
                 .stream()
                 .map(HolidayMapper::toResponse)
                 .toList();
+    }
+
+    public Page<HolidayResponse> getHolidaysByYear(int year, Pageable pageable) {
+        return repository.findByYear(year, pageable)
+                .map(HolidayMapper::toResponse);
     }
 
     @Transactional

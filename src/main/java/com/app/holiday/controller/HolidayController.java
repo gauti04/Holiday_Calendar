@@ -2,10 +2,13 @@ package com.app.holiday.controller;
 
 import com.app.holiday.dto.HolidayRequest;
 import com.app.holiday.dto.HolidayResponse;
+import com.app.holiday.dto.PageResponse;
 import com.app.holiday.service.HolidayService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,23 +36,39 @@ public class HolidayController {
     }
 
     @GetMapping
-    public ResponseEntity<List<HolidayResponse>> getHolidays(
+    public ResponseEntity<?> getHolidays(
             @RequestParam(required = false) String date,
-            @RequestParam(required = false) Integer year) {
+            @RequestParam(required = false) Integer year,
+            Pageable pageable) {
 
+        // If a specific date filter is provided
         if (date != null) {
-            return ResponseEntity.ok(
-                    service.getHolidaysByDate(LocalDate.parse(date))
-            );
+            if (pageable == null || pageable.isUnpaged()) {
+                List<HolidayResponse> list = service.getHolidaysByDate(LocalDate.parse(date));
+                return ResponseEntity.ok(list);
+            }
+            Page<HolidayResponse> page = service.getHolidaysByDate(LocalDate.parse(date), pageable);
+            return ResponseEntity.ok(PageResponse.from(page));
         }
 
+        // If a specific year filter is provided
         if (year != null) {
-            return ResponseEntity.ok(
-                    service.getHolidaysByYear(year)
-            );
+            if (pageable == null || pageable.isUnpaged()) {
+                List<HolidayResponse> list = service.getHolidaysByYear(year);
+                return ResponseEntity.ok(list);
+            }
+            Page<HolidayResponse> page = service.getHolidaysByYear(year, pageable);
+            return ResponseEntity.ok(page);
         }
 
-        return ResponseEntity.ok(service.getAllHolidays());
+        // No filters
+        if (pageable == null || pageable.isUnpaged()) {
+            List<HolidayResponse> list = service.getAllHolidays();
+            return ResponseEntity.ok(list);
+        }
+
+        Page<HolidayResponse> page = service.getAllHolidays(pageable);
+        return ResponseEntity.ok(page);
     }
 
     @DeleteMapping("/{id}")
